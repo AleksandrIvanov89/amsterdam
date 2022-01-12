@@ -1,0 +1,20 @@
+Version  1000
+Charset "WindowsLatin1"
+Delimiter ","
+CoordSys Earth Projection 1, 104
+Columns 13
+CodeJ Char(10)
+_2021 Float
+_2020 Float
+_2019 Float
+_2018 Float
+_2017 Float
+_2016 Float
+_2015 Float
+_2014 Float
+_2013 Float
+_2012 Float
+_2011 Float
+_2010 Float
+Data
+

@@ -20,14 +20,18 @@ print("Boroughs geodata loaded")
 amsterdam_bounds = [500, 500, 0, 0]
 
 for borough_i in boroughs_geodata.iterrows():
-    for i in range(4):
-        amsterdam_bounds[i] = min(amsterdam_bounds[i], borough_i[1].geometry.bounds[i]) if i < 2 else max(amsterdam_bounds[i], borough_i[1].geometry.bounds[i])
+    for i in [0, 1]:
+        amsterdam_bounds[i] = min(
+            amsterdam_bounds[i], borough_i[1].geometry.bounds[i])
+    for i in [2, 3]:
+        amsterdam_bounds[i] = max(
+            amsterdam_bounds[i], borough_i[1].geometry.bounds[i])
 
 print(amsterdam_bounds)
 
 # calculation of steps in boundaries
 
-address  = 'Amsterdam, Netherlands'
+address = 'Amsterdam, Netherlands'
 geolocator = Nominatim(user_agent="Amsterdam Data Project")
 location = geolocator.geocode(address)
 latitude = location.latitude
@@ -51,7 +55,8 @@ step_lng = dst * step_lng_1 / dst_1
 points = []
 for x in range(int((amsterdam_bounds[2] - amsterdam_bounds[0]) / step_lng + 1)):
     for y in range(int((amsterdam_bounds[3] - amsterdam_bounds[1]) / step_lat + 1)):
-        point_i = Point(amsterdam_bounds[0] + x * step_lng, amsterdam_bounds[1] + y * step_lat)
+        point_i = Point(
+            amsterdam_bounds[0] + x * step_lng, amsterdam_bounds[1] + y * step_lat)
         temp = False
         for borough_i in boroughs_geodata.iterrows():
             temp = point_i.within(borough_i[1].geometry) or temp
@@ -67,15 +72,43 @@ with open('../../credentials.json') as json_file:
 
 LIMIT = 50
 
-url = 'https://api.foursquare.com/v3/places/search?&ll={},{}&radius={}&limit={}'.format(
-    points[50].y, 
-    points[50].x, 
-    radius, 
-    LIMIT)
+headers = {"Accept": "application/json",
+           "Authorization": json_data.get('API_KEY')}
 
-headers = {"Accept": "application/json", "Authorization": json_data.get('API_KEY')}
-response = requests.request("GET", url, headers=headers)
+places = []
 
-#results = requests.get(url).json()#["response"]#['groups'][0]['items']
-print(json.dumps(response.json(), indent=2))
-print(len(response.json()["results"]))
+for point_i in points:
+    url = 'https://api.foursquare.com/v3/places/search?&ll={},{}&radius={}&limit={}'.format(
+        point_i.y, 
+        point_i.x, 
+        int(radius),
+        LIMIT)
+    try:
+        response = requests.request("GET", url, headers=headers)
+        for place_i in response.json()["results"]:
+            try:
+                places.append({
+                    "id": place_i["fsq_id"],
+                    "name": place_i['name'],
+                    "categories": place_i['categories'][0]['name'],
+                    "latitude": place_i['geocodes']['main']['latitude'],
+                    "longitude": place_i['geocodes']['main']['longitude']
+                })
+            except Exception as e:
+                print(e)
+                places.append({
+                    "id": place_i["fsq_id"],
+                    "name": place_i['name'],
+                    "categories": "Other",
+                    "latitude": place_i['geocodes']['main']['latitude'],
+                    "longitude": place_i['geocodes']['main']['longitude']
+                })
+        print(len(places))
+    except Exception as e:
+        print(e)
+    time.sleep(200)
+
+places_df = pd.DataFrame(places)
+places_df.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+
+places_df.to_csv("fsq_places.csv")

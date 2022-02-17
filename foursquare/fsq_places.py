@@ -78,28 +78,23 @@ headers = {"Accept": "application/json",
 places = []
 
 for point_i in points:
+    # prepare url
     url = 'https://api.foursquare.com/v3/places/search?&ll={},{}&radius={}&limit={}'.format(
         point_i.y, 
         point_i.x, 
         int(radius),
         LIMIT)
     try:
+        # request data
         response = requests.request("GET", url, headers=headers)
+        # parsing response
         for place_i in response.json()["results"]:
-            try:
-                places.append({
+            places.append({
                     "id": place_i["fsq_id"],
                     "name": place_i['name'],
-                    "categories": place_i['categories'][0]['name'],
-                    "latitude": place_i['geocodes']['main']['latitude'],
-                    "longitude": place_i['geocodes']['main']['longitude']
-                })
-            except Exception as e:
-                print(e)
-                places.append({
-                    "id": place_i["fsq_id"],
-                    "name": place_i['name'],
-                    "categories": "Other",
+                    "categories": place_i['categories'][0]['name'] \
+                        if (('categories' in place_i) and (len(place_i['categories']) > 0)) else \
+                            'Other',
                     "latitude": place_i['geocodes']['main']['latitude'],
                     "longitude": place_i['geocodes']['main']['longitude']
                 })

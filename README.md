@@ -26,10 +26,11 @@
     </ul>
 </p>
 <br>
+<p>This graph shows that the average price of property in Amsterdam has been increasing during last years.</p>
 <img style="width:600px;" src="https://github.com/AleksandrIvanov89/amsterdam/blob/main/property_prices.png?raw=true">
-<br>
+<p>The strong correlation between average property prices means that higher prices for aparatments located closer to the center of Amsterdam.</p>
 <img style="width:600px;" src="https://github.com/AleksandrIvanov89/amsterdam/blob/main/property_prices_distance_from_center.png?raw=true">
-<br>
+<p>Foursqaure data depicts that places in neighbourhoods with higher prices have higher rating, more popular, and have higher prices.</p>
 <img style="width:600px;" src="https://github.com/AleksandrIvanov89/amsterdam/blob/main/property_prices_foursquare.png?raw=true">
 <br>
 <img style="width:600px;" src="https://github.com/AleksandrIvanov89/amsterdam/blob/main/neighbourhoodtag.png?raw=true">
